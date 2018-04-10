@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
 	"time"
 
@@ -10,27 +10,28 @@ import (
 
 type JwtClaims struct {
 	*jwt.StandardClaims
-	UserId      string
-	DomainId    string
-	OrgUnitId   string
-	Authorities string `json:"authorities"`
+	UserId    string
+	RoleId    string
+	OrgUnitId string
+	// Authorities string `json:"authorities"`
 }
 
 var (
-	key []byte = []byte("showntop@163.com-jwt")
+	issuer string = "showntop"
+	key    []byte = []byte("showntop@163.com-jwt")
 )
 
-func GenToken(user_id, domain_id, org_id string, dt int64) (string, error) {
-	fmt.Println(time.Now().Unix())
+func GenToken(userID, roleID, orgID string, dt int64) (string, error) {
+	fmt.Println(userID, roleID, orgID, dt)
 	claims := JwtClaims{
 		&jwt.StandardClaims{
 			ExpiresAt: time.Now().Unix() + dt,
-			Issuer:    "showntop",
+			Issuer:    issuer,
 		},
-		user_id,
-		domain_id,
-		org_id,
-		"ROLE_ADMIN,AUTH_WRITE,ACTUATOR",
+		userID,
+		roleID,
+		orgID,
+		// "ROLE_ADMIN,AUTH_WRITE,ACTUATOR",
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -46,12 +47,12 @@ func DestoryToken() (string, error) {
 	claims := JwtClaims{
 		&jwt.StandardClaims{
 			ExpiresAt: int64(time.Now().Unix() - 99999),
-			Issuer:    "hzwy23",
+			Issuer:    issuer,
 		},
 		"exit",
 		"exit",
 		"exit",
-		"ROLE_ADMIN,AUTH_WRITE,ACTUATOR",
+		// "ROLE_ADMIN,AUTH_WRITE,ACTUATOR",
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -78,7 +79,7 @@ func ParseJwt(token string) (*JwtClaims, error) {
 		return key, nil
 	})
 	if err != nil {
-		return nil, errors.New("parase with claims failed.")
+		return nil, err //errors.New("parase with claims failed.")
 	}
 	return jclaim, nil
 }
